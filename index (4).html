@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElectroTech 3D - Zamonaviy Elektr Xizmatlari</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Three.js (3D Texnologiyasi) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- Custom Fonts & Fonts Import -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      overflow-x: hidden;
+    }
+
+    /* 3D Glassmorphism Cards */
+    .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 3D Button Styles */
+    .btn-3d {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 2rem;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #fff;
+      border-radius: 1rem;
+      transition: all 0.15s ease-in-out;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .btn-3d-cyan {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      box-shadow: 0 10px 0 #0284c7, 0 15px 25px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-3d-cyan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 0 #0284c7, 0 20px 30px rgba(6, 182, 212, 0.6);
+    }
+
+    .btn-3d-cyan:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #0284c7, 0 8px 15px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-3d-yellow {
+      background: linear-gradient(135deg, #eab308, #f97316);
+      box-shadow: 0 10px 0 #ca8a04, 0 15px 25px rgba(234, 179, 8, 0.4);
+      color: #0f172a;
+    }
+
+    .btn-3d-yellow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 0 #ca8a04, 0 20px 30px rgba(234, 179, 8, 0.6);
+    }
+
+    .btn-3d-yellow:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #ca8a04, 0 8px 15px rgba(234, 179, 8, 0.4);
+    }
+
+    .btn-3d-purple {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      box-shadow: 0 10px 0 #9333ea, 0 15px 25px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-3d-purple:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 0 #9333ea, 0 20px 30px rgba(168, 85, 247, 0.6);
+    }
+
+    .btn-3d-purple:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #9333ea, 0 8px 15px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-3d-green {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 10px 0 #047857, 0 15px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-3d-green:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 0 #047857, 0 20px 30px rgba(16, 185, 129, 0.6);
+    }
+
+    .btn-3d-green:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #047857, 0 8px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Glow Effects */
+    .glow-cyan {
+      text-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+    }
+
+    .glow-yellow {
+      text-shadow: 0 0 15px rgba(234, 179, 8, 0.6);
+    }
+
+    /* Canvas styling */
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between">
+
+  <!-- Three.js Canvas Background -->
+  <div id="canvas-container"></div>
+
+  <!-- Header / Navigation -->
+  <header class="relative z-10 p-6 max-w-7xl mx-auto w-full flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="p-3 bg-gradient-to-tr from-cyan-500 to-yellow-400 rounded-2xl shadow-lg shadow-cyan-500/30 text-slate-900">
+        <i data-lucide="zap" class="w-8 h-8 fill-current"></i>
+      </div>
+      <span class="text-3xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-yellow-300 to-pink-500">
+        ELECTRO<span class="text-white">3D</span>
+      </span>
+    </div>
+
+    <!-- Admin Fast Access -->
+    <button onclick="openAdminModal()" class="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-2 transition-all bg-slate-800/60 rounded-xl border border-slate-700 hover:border-cyan-500/50">
+      <i data-lucide="lock" class="w-4 h-4"></i> Admin Kirish
+    </button>
+  </header>
+
+  <!-- Main Hero Content -->
+  <main class="relative z-10 max-w-7xl mx-auto px-6 py-12 flex-1 flex flex-col justify-center items-center text-center">
+    
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-cyan-500/30 text-cyan-300 text-sm font-medium mb-8 animate-pulse">
+      <i data-lucide="sparkles" class="w-4 h-4 text-yellow-400"></i>
+      <span>Zamonaviy Yuqori Kuchlanishli Elektr Yechimlari</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight max-w-4xl">
+      Elektr Tizimlari va Professional <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-yellow-400 to-purple-500 glow-cyan">Xizmatlar Portal</span>
+    </h1>
+
+    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mb-12">
+      Uyingiz va korxonangiz uchun xavfsiz, ishonchli hamda sifatli elektr montaj va loyihalash xizmatlari. Quyidagi 3D interaktiv tugmalar orqali xizmatlarimizdan foydalaning!
+    </p>
+
+    <!-- Interactive 3D Buttons Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl mt-4">
+      
+      <!-- 1. Korxona Rezumyesi -->
+      <div class="glass-card p-6 rounded-3xl flex flex-col items-center justify-between border-t-2 border-cyan-400 hover:border-cyan-300 transition-all">
+        <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-4">
+          <i data-lucide="file-text" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Korxona Rezumyesi</h3>
+        <p class="text-xs text-slate-400 mb-6">Kompaniyamiz haqidagi to'liq ma'lumotlar va tajribamiz bilan tanishing.</p>
+        
+        <a href="https://docs.google.com/document/d/1z-am5Kfz5Ef6g_jPRLyZ5xWerBryfTGu9ZZFnC-xY0s/edit?usp=sharing" target="_blank" class="btn-3d btn-3d-cyan w-full">
+          <i data-lucide="external-link" class="w-5 h-5 mr-2"></i> Rezumeni Ochish
+        </a>
+      </div>
+
+      <!-- 2. Buyurtma Berish -->
+      <div class="glass-card p-6 rounded-3xl flex flex-col items-center justify-between border-t-2 border-yellow-400 hover:border-yellow-300 transition-all">
+        <div class="w-16 h-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center text-yellow-400 mb-4">
+          <i data-lucide="shopping-cart" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Buyurtma Berish</h3>
+        <p class="text-xs text-slate-400 mb-6">Xizmatlarimizga onlayn ariza qoldiring va tezkor javob oling.</p>
+        
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdDDiNU5VsFwSKgydo3amM5v9TXPl2gN0M2DFRBMGeKELTOYw/viewform?usp=sharing&ouid=108156267854962784460" target="_blank" class="btn-3d btn-3d-yellow w-full">
+          <i data-lucide="send" class="w-5 h-5 mr-2"></i> Buyurtma Qilish
+        </a>
+      </div>
+
+      <!-- 3. Video Lavha -->
+      <div class="glass-card p-6 rounded-3xl flex flex-col items-center justify-between border-t-2 border-purple-400 hover:border-purple-300 transition-all">
+        <div class="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 mb-4">
+          <i data-lucide="play-circle" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Video Lavha</h3>
+        <p class="text-xs text-slate-400 mb-6">Bizning ish jarayonlarimiz va loyihalarimiz aks etgan videolavha.</p>
+        
+        <a href="https://drive.google.com/file/d/1TUjS5CzlxJl_zMSP-nVnPC9FB8DLAKSL/view?usp=sharing" target="_blank" class="btn-3d btn-3d-purple w-full">
+          <i data-lucide="video" class="w-5 h-5 mr-2"></i> Videoni Ko'rish
+        </a>
+      </div>
+
+      <!-- 4. Buyurtmalar Jadvali (Admin Locked) -->
+      <div class="glass-card p-6 rounded-3xl flex flex-col items-center justify-between border-t-2 border-emerald-400 hover:border-emerald-300 transition-all relative overflow-hidden">
+        <div class="absolute top-3 right-3 px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+          <i data-lucide="lock" class="w-3 h-3"></i> Admin
+        </div>
+        <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4">
+          <i data-lucide="table" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Buyurtmalar Jadvali</h3>
+        <p class="text-xs text-slate-400 mb-6">Mavjud barcha buyurtmalar ro'yxati (Faqat Parol bilan kiritiladi).</p>
+        
+        <button onclick="openAdminModal()" class="btn-3d btn-3d-green w-full">
+          <i data-lucide="key" class="w-5 h-5 mr-2"></i> Jadvalni Ochish
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Admin Modal (Parol kiritish uchun) -->
+  <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="glass-card max-w-md w-full p-8 rounded-3xl border border-slate-700 relative animate-in fade-in zoom-in duration-200">
+      <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-400">
+          <i data-lucide="shield-check" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-2xl font-black text-white">Admin Tasdiqlashi</h3>
+        <p class="text-slate-400 text-sm mt-1">Buyurtmalar jadvalini ko'rish uchun maxsus parolni kiriting</p>
+      </div>
+
+      <form onsubmit="verifyPassword(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Admin Paroli</label>
+          <div class="relative">
+            <input type="password" id="adminPassword" placeholder="Parolni kiriting..." required
+                   class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+            <i data-lucide="lock" class="w-5 h-5 text-slate-500 absolute right-3 top-3.5"></i>
+          </div>
+        </div>
+
+        <div id="errorMessage" class="text-red-400 text-xs hidden flex items-center gap-1 font-semibold">
+          <i data-lucide="alert-circle" class="w-4 h-4"></i> Parol noto'g'ri! Qaytadan urinib ko'ring.
+        </div>
+
+        <button type="submit" class="btn-3d btn-3d-green w-full mt-2">
+          Tasdiqlash va Kirish
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="relative z-10 p-6 text-center text-slate-500 text-sm border-t border-slate-800/80 mt-12">
+    <p>© 2026 Electro3D. Barcha huquqlar himoyalangan.</p>
+  </footer>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Admin Modal Logic
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.remove('hidden');
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('errorMessage').classList.add('hidden');
+    }
+
+    function closeAdminModal() {
+      document.getElementById('adminModal').classList.add('hidden');
+    }
+
+    function verifyPassword(event) {
+      event.preventDefault();
+      const passwordInput = document.getElementById('adminPassword').value;
+      const errorMessage = document.getElementById('errorMessage');
+
+      // Admin Password Check
+      if (passwordInput === '123456') {
+        // Correct Password: Redirect to Google Spreadsheet
+        window.open('https://docs.google.com/spreadsheets/d/1s_GhaUqppb-jWRs2D8tcCASXDAJ9fRI_UDHuGa_bRSE/edit?usp=sharing', '_blank');
+        closeAdminModal();
+      } else {
+        // Wrong Password: Show Error
+        errorMessage.classList.remove('hidden');
+      }
+    }
+
+    // Three.js 3D Background Scene Animation
+    window.onload = function () {
+      const container = document.getElementById('canvas-container');
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      // Create Floating Glowing Particles (Electric Atoms Effect)
+      const particlesGeometry = new THREE.BufferGeometry();
+      const count = 120;
+
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+
+      for (let i = 0; i < count * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 80;
+        positions[i + 1] = (Math.random() - 0.5) * 80;
+        positions[i + 2] = (Math.random() - 0.5) * 80;
+
+        // Colors: Cyan & Yellow Sparks
+        if (Math.random() > 0.5) {
+          colors[i] = 0.0;     // R
+          colors[i + 1] = 0.8; // G
+          colors[i + 2] = 1.0; // B
+        } else {
+          colors[i] = 1.0;     // R
+          colors[i + 1] = 0.9; // G
+          colors[i + 2] = 0.2; // B
+        }
+      }
+
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 1.2,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particlesMesh);
+
+      // Create Rotating Geometric 3D Structure (Power Core Mesh)
+      const coreGeometry = new THREE.IcosahedronGeometry(12, 1);
+      const coreMaterial = new THREE.MeshBasicMaterial({
+        color: 0x06b6d4,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.15
+      });
+      const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+      scene.add(coreMesh);
+
+      // Interactive Mouse Movement Effect
+      let mouseX = 0;
+      let mouseY = 0;
+
+      document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX / window.innerWidth - 0.5) * 0.5;
+        mouseY = (event.clientY / window.innerHeight - 0.5) * 0.5;
+      });
+
+      // Resize Handler
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Animation Loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotation
+        particlesMesh.rotation.y += 0.0015;
+        particlesMesh.rotation.x += 0.0008;
+
+        coreMesh.rotation.y -= 0.002;
+        coreMesh.rotation.x -= 0.001;
+
+        // Smooth Mouse Parallax
+        camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    };
+  </script>
+</body>
+</html>
